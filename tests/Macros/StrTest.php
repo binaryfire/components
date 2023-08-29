@@ -182,6 +182,32 @@ test('test password', function ($expected, $args) {
     [10, [10]],
 ]);
 
+test('test replaceStart', function ($expected, $args) {
+    expect(Str::replaceStart(...$args))->toBe($expected);
+})->with([
+    ['foobar foobar', ['bar', 'qux', 'foobar foobar']],
+    ['foo/bar? foo/bar?', ['bar?', 'qux?', 'foo/bar? foo/bar?']],
+    ['quxbar foobar', ['foo', 'qux', 'foobar foobar']],
+    ['qux? foo/bar?', ['foo/bar?', 'qux?', 'foo/bar? foo/bar?']],
+    ['bar foobar', ['foo', '', 'foobar foobar']],
+    ['1', [0, '1', '0']],
+    ['xxxnköping Malmö', ['Jö', 'xxx', 'Jönköping Malmö']],
+    ['Jönköping Malmö', ['', 'yyy', 'Jönköping Malmö']],
+]);
+
+test('test replaceEnd', function ($expected, $args) {
+    expect(Str::replaceEnd(...$args))->toBe($expected);
+})->with([
+    ['foobar fooqux', ['bar', 'qux', 'foobar foobar']],
+    ['foo/bar? foo/qux?', ['bar?', 'qux?', 'foo/bar? foo/bar?']],
+    ['foobar foo', ['bar', '', 'foobar foobar']],
+    ['foobar foobar', ['xxx', 'yyy', 'foobar foobar']],
+    ['foobar foobar', ['', 'yyy', 'foobar foobar']],
+    ['fooxxx foobar', ['xxx', 'yyy', 'fooxxx foobar']],
+    ['Malmö Jönköping', ['ö', 'xxx', 'Malmö Jönköping']],
+    ['Malmö Jönkyyy', ['öping', 'yyy', 'Malmö Jönköping']],
+]);
+
 test('test reverse', function ($value, $expected) {
     expect(Str::reverse($value))->toBe($expected);
 })->with([
@@ -264,3 +290,11 @@ test('test wrap', function () {
     $this->assertEquals('"value"', Str::wrap('value', '"'));
     $this->assertEquals('foo-bar-baz', Str::wrap('-bar-', 'foo', 'baz'));
 });
+
+test('test wordWrap', function ($expected, $args) {
+    expect(Str::wordWrap(...$args))->toBe($expected);
+})->with([
+    ['Hello<br />World', ['Hello World', 3, '<br />']],
+    ['Hel<br />lo<br />Wor<br />ld', ['Hello World', 3, '<br />', true]],
+    ['❤Multi<br />Byte☆❤☆❤☆❤', ['❤Multi Byte☆❤☆❤☆❤', 3, '<br />']],
+]);

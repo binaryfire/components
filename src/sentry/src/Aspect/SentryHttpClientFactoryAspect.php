@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry\Aspect;
 
 use GuzzleHttp\Client as GuzzleClient;
@@ -38,7 +39,7 @@ class SentryHttpClientFactoryAspect extends AbstractAspect
         $guzzleConfig = [
             GuzzleHttpClientOptions::TIMEOUT => $options->getHttpTimeout(),
             GuzzleHttpClientOptions::CONNECT_TIMEOUT => $options->getHttpConnectTimeout(),
-            'no_aspect' => true,
+            'no_sentry_aspect' => true,
         ];
 
         if ($options->getHttpProxy() !== null) {

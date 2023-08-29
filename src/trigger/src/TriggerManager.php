@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Trigger;
 
 use FriendsOfHyperf\Trigger\Annotation\Trigger;
 use Hyperf\Collection\Arr;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\AnnotationCollector;
-use SplPriorityQueue;
+use Hyperf\Stdlib\SplPriorityQueue;
 
 use function Hyperf\Support\class_basename;
 

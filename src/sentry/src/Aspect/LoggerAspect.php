@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry\Aspect;
 
 use FriendsOfHyperf\Sentry\Integration;
@@ -46,7 +47,7 @@ class LoggerAspect extends AbstractAspect
             /** @var DateTimeImmutable|null $datetime */
             $datetime = $proceedingJoinPoint->arguments['keys']['datetime'];
 
-            if (isset($context['no_aspect']) && $context['no_aspect'] === true) {
+            if (isset($context['no_sentry_aspect']) && $context['no_sentry_aspect'] === true) {
                 return;
             }
 

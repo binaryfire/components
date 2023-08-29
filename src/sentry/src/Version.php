@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry;
 
 final class Version
 {
     public const SDK_IDENTIFIER = 'sentry.php.hyperf';
 
-    public const SDK_VERSION = '3.0.0';
+    public const SDK_VERSION = '3.1.0';
 }

@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry;
 
 class ConfigProvider
@@ -33,9 +34,14 @@ class ConfigProvider
                 \Sentry\State\HubInterface::class => Factory\HubFactory::class,
             ],
             'listeners' => [
+                Listener\AmqpExceptionListener::class,
+                Listener\AsyncQueueExceptionListener::class,
                 Listener\CheckIsEnableRequestLifecycleListener::class,
+                Listener\CommandExceptionListener::class,
+                Listener\CrontabExceptionListener::class,
                 Listener\DbQueryListener::class,
-                Listener\InitHubListener::class,
+                Listener\KafkaExceptionListener::class,
+                Listener\RequestExceptionListener::class,
             ],
             'annotations' => [
                 'scan' => [

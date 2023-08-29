@@ -8,10 +8,11 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\AmqpJob\Attempt;
 
 use FriendsOfHyperf\AmqpJob\Contract\Attempt;
-use Redis;
+use Hyperf\Redis\Redis;
 
 class RedisAttempt implements Attempt
 {
@@ -19,16 +20,11 @@ class RedisAttempt implements Attempt
     {
     }
 
-    public function incr(string $key): int
+    public function increment(string $key): int
     {
         $attempts = (int) $this->redis->incr($this->prefix . $key);
         $this->redis->expire($this->prefix . $key, $this->ttl);
 
         return $attempts;
-    }
-
-    public function clear(string $key): void
-    {
-        $this->redis->del($this->prefix . $key);
     }
 }

@@ -8,22 +8,26 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry\Factory;
 
 use FriendsOfHyperf\Sentry\Integration;
 use FriendsOfHyperf\Sentry\Integration\RequestFetcher;
+use Hyperf\Context\Context;
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Server\ServerManager;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Sentry\ClientBuilderInterface;
 use Sentry\Integration as SdkIntegration;
-use Sentry\SentrySdk;
 use Sentry\State\Hub;
 
 use function Hyperf\Support\make;
-use function Hyperf\Tappable\tap;
 
+/**
+ * @property \Sentry\Transport\TransportInterface|null $transport
+ * @method \Sentry\ClientInterface getClient()
+ */
 class HubFactory
 {
     public function __invoke(ContainerInterface $container)
@@ -63,7 +67,7 @@ class HubFactory
 
             $requestFetcher = null;
 
-            if (class_exists(ServerManager::class) && ServerManager::list()) {
+            if (Context::has(ServerRequestInterface::class)) {
                 $requestFetcher = $container->get(RequestFetcher::class);
             }
 
@@ -72,16 +76,23 @@ class HubFactory
             return array_merge($integrations, $userIntegrations);
         });
 
-        return tap(new Hub($clientBuilder->getClient()), fn ($hub) => SentrySdk::setCurrentHub($hub));
+        $client = (function () {
+            $this->transport = null; // Make the transport is new created before get client
+            return $this->getClient();
+        })->call($clientBuilder);
+
+        return new Hub($client);
     }
 
+    /**
+     * @return SdkIntegration\IntegrationInterface[]
+     */
     protected function resolveIntegrationsFromUserConfig(ContainerInterface $container): array
     {
         $integrations = [
             new Integration(),
         ];
-        $config = $container->get(ConfigInterface::class)->get('sentry', []);
-        $userIntegrations = $config['integrations'] ?? [];
+        $userIntegrations = $container->get(ConfigInterface::class)->get('sentry.integrations', []);
 
         foreach ($userIntegrations as $userIntegration) {
             if ($userIntegration instanceof SdkIntegration\IntegrationInterface) {

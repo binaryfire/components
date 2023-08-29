@@ -8,9 +8,11 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace Hyperf\Collection;
 
 use Hyperf\Contract\Arrayable;
+use UnexpectedValueException;
 
 class Collection
 {
@@ -24,6 +26,20 @@ class Collection
      * @return bool
      */
     public function doesntContain($key, $operator = null, $value = null)
+    {
+    }
+
+    /**
+     * Ensure that every item in the collection is of the expected type.
+     *
+     * @template TEnsureOfType
+     *
+     * @param class-string<TEnsureOfType> $type
+     * @return static<mixed, TEnsureOfType>
+     *
+     * @throws UnexpectedValueException
+     */
+    public function ensure($type)
     {
     }
 

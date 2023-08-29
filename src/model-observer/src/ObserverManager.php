@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\ModelObserver;
 
 use FriendsOfHyperf\ModelObserver\Annotation\Observer;
 use Hyperf\Di\Annotation\AnnotationCollector;
-use SplPriorityQueue;
+use Hyperf\Stdlib\SplPriorityQueue;
 
 class ObserverManager
 {

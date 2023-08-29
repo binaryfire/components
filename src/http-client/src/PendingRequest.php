@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Http\Client;
 
 use Closure;
@@ -822,7 +823,7 @@ class PendingRequest
     /**
      * Send a pool of asynchronous requests concurrently.
      *
-     * @return array
+     * @return array<array-key, Response>
      */
     public function pool(callable $callback)
     {

@@ -8,10 +8,13 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\AmqpJob;
 
+use FriendsOfHyperf\AmqpJob\Attempt\RedisAttempt;
 use FriendsOfHyperf\AmqpJob\Contract\Attempt;
 use FriendsOfHyperf\AmqpJob\Contract\Packer;
+use Hyperf\Codec\Packer\PhpSerializerPacker;
 
 final class ConfigProvider
 {
@@ -19,8 +22,8 @@ final class ConfigProvider
     {
         return [
             'dependencies' => [
-                Attempt::class => \FriendsOfHyperf\AmqpJob\Attempt\RedisAttempt::class,
-                Packer::class => \Hyperf\Codec\Packer\PhpSerializerPacker::class,
+                Attempt::class => RedisAttempt::class,
+                Packer::class => PhpSerializerPacker::class,
             ],
         ];
     }

@@ -8,11 +8,11 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\AmqpJob;
 
-use FriendsOfHyperf\AmqpJob\Contract\Attempt;
+use FriendsOfHyperf\AmqpJob\Contract\JobInterface;
 use FriendsOfHyperf\AmqpJob\Contract\Packer;
-use FriendsOfHyperf\AmqpJob\Contract\ShouldQueue;
 use Hyperf\Amqp\Message\ConsumerMessage;
 use Hyperf\Amqp\Result;
 use Hyperf\Contract\StdoutLoggerInterface;
@@ -23,22 +23,28 @@ abstract class JobConsumer extends ConsumerMessage
 {
     public function consumeMessage($data, AMQPMessage $message): Result
     {
-        if (! $data instanceof Job) {
+        $logger = $this->getContainer()->get(StdoutLoggerInterface::class);
+
+        if (! $data instanceof JobInterface) {
+            $logger->error(sprintf('The message is not an instance of %s.', JobInterface::class));
+
             return Result::DROP;
         }
 
         try {
             $ack = $data->handle();
-            $this->clearAttempts($data);
 
-            return ($ack && Result::tryFrom($ack)) ?? Result::ACK;
-        } catch (Throwable $e) {
-            if ($this->attempts($data)) {
-                return Result::REQUEUE;
+            if ($ack instanceof Result) {
+                return $ack;
             }
 
-            $logger = $this->getContainer()->get(StdoutLoggerInterface::class);
+            return Result::tryFrom((string) $ack) ?? Result::ACK;
+        } catch (Throwable $e) {
             $logger->error((string) $e);
+
+            if ($data->attempts()) {
+                return Result::REQUEUE;
+            }
 
             return Result::DROP;
         }
@@ -49,26 +55,5 @@ abstract class JobConsumer extends ConsumerMessage
         $packer = $this->getContainer()->get(Packer::class);
 
         return $packer->unpack($data);
-    }
-
-    private function attempts(ShouldQueue $job): bool
-    {
-        $attempts = (int) $this->getAttempt()->incr($job->getJobId());
-
-        if ($job->getMaxAttempts() > $attempts) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function clearAttempts(ShouldQueue $job): void
-    {
-        $this->getAttempt()->clear($job->getJobId());
-    }
-
-    private function getAttempt(): Attempt
-    {
-        return $this->getContainer()->get(Attempt::class);
     }
 }

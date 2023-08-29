@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Macros;
 
 use FriendsOfHyperf\Support\HtmlString;
@@ -79,6 +80,18 @@ class StringableMixin
     public function newLine()
     {
         return fn ($count = 1) => $this->append(str_repeat(PHP_EOL, $count));
+    }
+
+    public function replaceStart()
+    {
+        /* @phpstan-ignore-next-line */
+        return fn ($search, $replace) => new static(Str::replaceStart($search, $replace, $this->value));
+    }
+
+    public function replaceEnd()
+    {
+        /* @phpstan-ignore-next-line */
+        return fn ($search, $replace) => new static(Str::replaceEnd($search, $replace, $this->value));
     }
 
     public function reverse()
@@ -202,5 +215,16 @@ class StringableMixin
     {
         /* @phpstan-ignore-next-line */
         return fn ($before, $after = null) => new static(Str::wrap($this->value, $before, $after));
+    }
+
+    /**
+     * Wrap a string to a given number of characters.
+     *
+     * @return static
+     */
+    public function wordWrap()
+    {
+        /* @phpstan-ignore-next-line */
+        return fn ($characters = 75, $break = "\n", $cutLongWords = false) => new static(Str::wordWrap($this->value, $characters, $break, $cutLongWords));
     }
 }

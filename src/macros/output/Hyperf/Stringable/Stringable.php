@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace Hyperf\Stringable;
 
 class Stringable
@@ -93,6 +94,28 @@ class Stringable
      * @return $this
      */
     public function newLine($count = 1)
+    {
+    }
+
+    /**
+     * Replace the first occurrence of the given value if it appears at the start of the string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @return static
+     */
+    public function replaceStart($search, $replace)
+    {
+    }
+
+    /**
+     * Replace the last occurrence of a given value if it appears at the end of the string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @return static
+     */
+    public function replaceEnd($search, $replace)
     {
     }
 
@@ -327,6 +350,18 @@ class Stringable
      * @return string
      */
     public function toString()
+    {
+    }
+
+    /**
+     * Wrap a string to a given number of characters.
+     *
+     * @param int $characters
+     * @param string $break
+     * @param bool $cutLongWords
+     * @return static
+     */
+    public function wordWrap($characters = 75, $break = "\n", $cutLongWords = false)
     {
     }
 }

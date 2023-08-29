@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace Hyperf\Stringable;
 
 class Str
@@ -121,6 +122,30 @@ class Str
     }
 
     /**
+     * Replace the first occurrence of the given value if it appears at the start of the string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     * @return string
+     */
+    public static function replaceStart($search, $replace, $subject)
+    {
+    }
+
+    /**
+     * Replace the last occurrence of a given value if it appears at the end of the string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     * @return string
+     */
+    public static function replaceEnd($search, $replace, $subject)
+    {
+    }
+
+    /**
      * Reverse the given string.
      *
      * @return string
@@ -217,6 +242,19 @@ class Str
      * @return string
      */
     public static function wrap($value, $before, $after = null)
+    {
+    }
+
+    /**
+     * Wrap a string to a given number of characters.
+     *
+     * @param string $string
+     * @param int $characters
+     * @param string $break
+     * @param bool $cutLongWords
+     * @return string
+     */
+    public static function wordWrap($string, $characters = 75, $break = "\n", $cutLongWords = false)
     {
     }
 }

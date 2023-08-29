@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Macros;
 
 use FriendsOfHyperf\Macros\Exception\ItemNotFoundException;
@@ -15,11 +16,13 @@ use FriendsOfHyperf\Macros\Exception\MultipleItemsFoundException;
 use Hyperf\Collection\Arr;
 use Hyperf\Collection\Collection;
 use stdClass;
+use UnexpectedValueException;
 
 use function Hyperf\Collection\data_get;
 use function Hyperf\Collection\value;
 
 /**
+ * @property array $items
  * @mixin Collection
  */
 class CollectionMixin
@@ -27,6 +30,19 @@ class CollectionMixin
     public function doesntContain()
     {
         return fn ($key, $operator = null, $value = null) => ! $this->contains(...func_get_args());
+    }
+
+    public function ensure()
+    {
+        return fn ($type) => $this->each(function ($item) use ($type) {
+            $itemType = get_debug_type($item);
+
+            if ($itemType !== $type && ! $item instanceof $type) {
+                throw new UnexpectedValueException(
+                    sprintf("Collection should only include '%s' items, but '%s' found.", $type, $itemType)
+                );
+            }
+        });
     }
 
     public function firstOrFail()

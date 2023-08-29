@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @document https://github.com/friendsofhyperf/components/blob/main/README.md
  * @contact  huangdijia@gmail.com
  */
+
 namespace FriendsOfHyperf\Sentry\Aspect;
 
 use FriendsOfHyperf\Sentry\Integration;
@@ -17,8 +18,6 @@ use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Psr\Http\Message\ResponseInterface;
 use Sentry\Breadcrumb;
-
-use function Hyperf\Tappable\tap;
 
 class GuzzleHttpClientAspect extends AbstractAspect
 {
@@ -33,49 +32,47 @@ class GuzzleHttpClientAspect extends AbstractAspect
 
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
+        if (! $this->config->get('sentry.breadcrumbs.guzzle', false)) {
+            return $proceedingJoinPoint->process();
+        }
+
         $startTime = microtime(true);
         $instance = $proceedingJoinPoint->getInstance();
         $arguments = $proceedingJoinPoint->arguments;
+        $options = $arguments['keys']['options'] ?? [];
+        $guzzleConfig = (fn () => $this->config ?? [])->call($instance);
 
-        if ($proceedingJoinPoint->methodName == 'request') { // Disable the aspect for the requestAsync method.
-            $proceedingJoinPoint->arguments['keys']['options']['no_aspect'] = true;
+        if (($options['no_sentry_aspect'] ?? null) === true || ($guzzleConfig['no_sentry_aspect'] ?? null) === true) {
+            return $proceedingJoinPoint->process();
         }
 
-        return tap($proceedingJoinPoint->process(), function ($result) use ($instance, $arguments, $startTime) {
-            if (! $this->config->get('sentry.breadcrumbs.guzzle', false)) {
-                return;
-            }
+        // Disable the aspect for the requestAsync method.
+        if ($proceedingJoinPoint->methodName == 'request') {
+            $proceedingJoinPoint->arguments['keys']['options']['no_sentry_aspect'] = true;
+        }
 
-            $options = $arguments['keys']['options'] ?? [];
+        $uri = $arguments['keys']['uri'] ?? '';
+        $data['config'] = $guzzleConfig;
+        $data['request']['method'] = $arguments['keys']['method'] ?? 'GET';
+        $data['request']['options'] = $arguments['keys']['options'] ?? [];
 
-            if (($options['no_aspect'] ?? null) === true) {
-                return;
-            }
+        $result = $proceedingJoinPoint->process();
 
-            $guzzleConfig = (fn () => $this->config ?? [])->call($instance);
+        if ($result instanceof ResponseInterface) {
+            $data['response']['status'] = $result->getStatusCode();
+            $data['response']['reason'] = $result->getReasonPhrase();
+            $data['response']['headers'] = $result->getHeaders();
+        }
+        $data['timeMs'] = (microtime(true) - $startTime) * 1000;
 
-            if (($guzzleConfig['no_aspect'] ?? null) === true) {
-                return;
-            }
+        Integration::addBreadcrumb(new Breadcrumb(
+            Breadcrumb::LEVEL_INFO,
+            Breadcrumb::TYPE_DEFAULT,
+            'guzzle',
+            $uri,
+            $data
+        ));
 
-            $uri = $arguments['keys']['uri'] ?? '';
-            $data['config'] = $guzzleConfig;
-            $data['request']['method'] = $arguments['keys']['method'] ?? 'GET';
-            $data['request']['options'] = $arguments['keys']['options'] ?? [];
-            if ($result instanceof ResponseInterface) {
-                $data['response']['status'] = $result->getStatusCode();
-                $data['response']['reason'] = $result->getReasonPhrase();
-                $data['response']['headers'] = $result->getHeaders();
-            }
-            $data['timeMs'] = (microtime(true) - $startTime) * 1000;
-
-            Integration::addBreadcrumb(new Breadcrumb(
-                Breadcrumb::LEVEL_INFO,
-                Breadcrumb::TYPE_DEFAULT,
-                'guzzle',
-                $uri,
-                $data
-            ));
-        });
+        return $result;
     }
 }
